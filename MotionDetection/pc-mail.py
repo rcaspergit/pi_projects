@@ -55,10 +55,7 @@ while True:
     time.sleep(2)
     filename = datetime.now().strftime("./photo/%Y-%m-%d_%H.%M.%S.jpg")
     camera.capture(filename)
-    mail(gmail_user,
-       subject,
-       message,
-       filename)
+    mail(gmail_user, subject, message, filename)
     print(" emailing {} to {}  \n".format(filename,gmail_user))
     os.remove(filename)
     print(" deleting {} \n".format(filename))
