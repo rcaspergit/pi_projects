@@ -36,13 +36,15 @@ def get_data():
 
 index = 0
 for y in  Ai:
-    print(index,Ai[index])
     GPIO.setup(Ai[index], GPIO.OUT, initial=0)
     index = index +1
 
 # pdb.set_trace()
 try:
      for x in range(0x0,0x7ffff):
+#        var = input("stopped at " + hex(x)) 
+        if ((x%0x1000) == 0):
+            print("block starting at address " + hex(x))
         for y in range(19):
             GPIO.output(Ai[y],((x>>y)&1))
         outbyte = get_data()
