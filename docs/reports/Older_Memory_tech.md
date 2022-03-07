@@ -1,6 +1,8 @@
-# Contents
+# Table of contents
+  1. [Purpose](#purpose)
+  2. [Abstract](#abstract)
 
-[Purpose 2](#_Toc95054696)
+[Purpose](#Purpose)
 
 [Abstract 2](#_Toc95054697)
 
@@ -62,12 +64,13 @@
 
 [Programming the W27E040-12: 25](#_Toc95054726)
 
-**Purpose** : To explore older memory technologies requiring special tools or DC voltage levels for programming and erasure. The chips under investigation including:
+## Purpose <a name="purpose"></a> :
+ To explore older memory technologies requiring special tools or DC voltage levels for programming and erasure. The chips under investigation including:
 
 - UV erasable EProm
 - Electrically erasable (14 volt Vpp, 5 Volt Vcc)
 
-**Abstract** :
+## Abstract <a name="abstract"></a> :
 
 This activity was the first attempt at understanding and working with various memory technologies. The initial experiments focused on the M27C256B EPROM chip. This chip was found in a package of electronic parts collected over a span of 40 years by a relative. The second set of chips included the W27E040 EEProm purchased through Amazon. These chips are an older technology and were used parts. They were delivered with data still contained on the chips: More on that later.
 
