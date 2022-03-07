@@ -1,6 +1,7 @@
 # Table of contents
   1. [Purpose](#purpose)
   2. [Abstract](#abstract)
+  3. [Support Components](#support_components)
 
 [Purpose](#Purpose)
 
@@ -76,7 +77,7 @@ This activity was the first attempt at understanding and working with various me
 
 The labs will progress from the oldest technology through the newest. In addition to reading and writing the different chips, additional support components will be introduced. This includes, Python, Raspberry Pi GPIO, Breadboards, Serial in parallel out (SIPO) IC&#39;s ad Parallel in Serial out (PISO) IC&#39;s. Additionally, debugging techniques for both hardware and software will be detailed throughout the various labs.
 
-**Support Components** :
+## Support Components <a name="support_components"></a> :
 
 For data reads and writes the lab will proceed from manually setting control and addressing using a 5V source and reading the data at specific locations using LEDS to using raspberry pi 2 and 3&#39;s to supply power, control and addressing signals while leveraging the raspberry pi GPIO pins to read the data from the memory chips.
 
