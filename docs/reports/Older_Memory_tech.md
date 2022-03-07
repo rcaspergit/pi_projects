@@ -2,14 +2,37 @@
   1. [Purpose](#purpose)
   2. [Abstract](#abstract)
   3. [Support Components](#support_components)
+  4. [M27C256B EPROM](#M27C256B_EPROM)
+     1. [Initial Read:](#Initial_Read)
+        1. [Intro](#Intro)
+        2. [Harness](#Harness)
+        3. [Initial Connections: 5](#Initial_Connections)
+     2. Automated Address and Data Management via Raspberry PI GPIO
+     3. Python code
+     4. Testing M27C256 harness
+     5. Dumping the EProm
+     6. Erasing the EProm
+  5. W27E040-12
+     1. pinout
+        1. CD4021-BE Static Shift register
+        2. CD4021-BE operations
+        3. EEPROM dump Code
+        4. W27E040-12 data
+           1. Data identification
+           2. FOS data
+           3. decode
+        5. Erasing the W27E040-12
+           1. Erase connections
+           2. Voltage Dividers up close
+  6. Programming the Chips:
+     1. Programming the M27C256B
+        1. Chip SPecifications for write Operations
+        2. Data and Code for Write Operation
+        3. Verification of the write Operations
+     2. Programming the W27E040-12
 
-[Purpose](#Purpose)
 
-[Abstract 2](#_Toc95054697)
-
-[Support Components 2](#_Toc95054698)
-
-[M27C256B EPROM 3](#_Toc95054699)
+[M27C256B EPROM](#M27C256B_EPROM)
 
 [Initial Read: 3](#_Toc95054700)
 
@@ -85,7 +108,7 @@ As the labs progress from the UV erasable M27C25B chip leveraging 15 bit address
 
 Other tools used for development and testing include a voltmeter, an SDS 1202X-E digital Oscilloscope, an assortment of resistors and LED devices will also be used for pull-up, pull-down, data indicators, and voltage divider resister arrays. Power sources include the 5 volt pins of the Raspberry Pi GPIO, 5 Volt sources from modified USB charging cables (photos included), and a 28 Volt variable voltage source to support erasure and writing of the W27E040 chips. Finally, a dual wavelength, UV-A 315 nm, and, UV-C 280 nm, UV lamp will be used to erase the M27C256B EPROM chip.
 
-**M27C256B EPROM** :
+## M27C256B EPROM <a name="M27C256B_EPROM"></a> :
 
 ![](RackMultipart20220306-4-1h7bbh1_html_193a439d457b16be.jpg) ![](RackMultipart20220306-4-1h7bbh1_html_ed471a836f83f784.png)
 
