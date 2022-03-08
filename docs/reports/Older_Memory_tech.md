@@ -197,7 +197,7 @@ The fourth section is the main code for walking through all address sequentially
 
 The last section is cleanup. The python write buffer is flushed pushing all remaining data to the output file and the output file is closed. The last call sets the GPIO bits to their default state.
 
-## Testing M27C256 Harness <a name=""></a>:
+## Testing M27C256 Harness <a name="Testing_Harness"></a>:
 
 As shown in figure 7 below:
 
@@ -209,7 +209,7 @@ Prior to dumping the EPROM both the python code and the wiring of the harness ne
 
 Using the same process the data packing can be verified. In this case rather than looping through all memory locations, several locations with different data values are selected. The data values can be read off the red LED&#39;s which indicate the data bits. The python code then takes the same string of zero and ones and packs them into the output word. The output word is then verified against the LED values.
 
-## Dumping the EPROM <a name=""></a>:
+## Dumping the EPROM <a name="Dumping_Prom"></a>:
 
 For dumping the EPROM the code section to test out the harness can be commented out and the main loop is set to run through (0 -\&gt; 2^15-1) memory locations. For the read, the LED&#39;s were left connected to monitor the data flow. Below is a dump of the first few pages of the M27C256B chip.
 
@@ -217,7 +217,7 @@ For dumping the EPROM the code section to test out the harness can be commented 
 
 At present, no analysis of the dump has been completed
 
-## Erasing the EPROM <a name=""></a>:
+## Erasing the EPROM <a name="Erasing_Prom"></a>:
 
 The M27C256 is a Ultraviolet light erasable EPROM. The specifications require a UV source with a frequency in the area of 250 nanometers. UV erasable will erase with a broad range of environments including direct sunlight. However the farther from the specified UV frequencies or sunlight requires longer exposure. For this activity, a UV lamp with frequency in the specified range is available and is
 
@@ -233,7 +233,7 @@ Figure 9
 
 The M27C256B chip was placed over the UV light, 280 nm for one hour. The chip was then placed back in the test harness and all addresses were accessed and the data bits were all 1, the data LED&#39;s never went out demonstrating that the Chip has been successfully erased.
 
-## W27E040-12 <a name=""></a>:
+## W27E040-12 <a name="W27E040"></a>:
 
 The work done to connect, dump, and clear the M27C256B will be extended to the next memory chip. The W27E040-12 chip is an electrically erasable chip. It has two main differences from the M27C256B. The first is the address space. The W27E040-12 is a 19 bit address device requiring 4 additional address lines. Including the 8 data lines, there are not enough I/O ports on the RPi GPIO interface. To expand on the number of ports available to the GPIO, a Parallel - In - Serial – Out (PISO) shift register will be added to the collection harness.
 
@@ -253,7 +253,7 @@ Figure 11
 
 Figure 11 gives a closeup view of the harness showing the addressing and data connections, hardwired control pin connections such as output enable and chip enable, and the green wires pulling off the data bits for the LED bank to observe data flow out of the EEPROM and into the PISO
 
-## Pinout <a name=""></a>:
+## Pinout <a name="pinout"></a>:
 
 W27E040 **:** Figure 12 illustrates the pin out of the W27E040 EEPROM. It shares many of the characteristics of the EPROM above. The main differences are in the address space, 19 address pins instead of 15, and a new pin Vpp . This pin is used for erasure of the chip and programming. The procedures for both will be described below.
 
@@ -261,14 +261,14 @@ W27E040 **:** Figure 12 illustrates the pin out of the W27E040 EEPROM. It shares
 
 Figure 12
 
-## CD4021-BE Static Shift Register <a name=""></a>:
+## CD4021-BE Static Shift Register <a name="CD4021"></a>:
  Figure 13 illustrates the pinout of the CD4021 PISO shift register. This shift register will be used to pull data from the EEPROM. The EEPROM provides data as 8 bit words requiring 8 pins to collect. Given the additional address pins needed to access the EEPROM data, the RPi does not have enough pins to collect the data and manage control pins. To solve this problem the PISO chip will be used to collect the 8 data bits in parallel and the RPi will clock out the data from the PISO serially. The control and data pins needed to clock in the data only require 3 RPi pins. In the pinout below, the pins listed as PI-1 through PI-8 are the data pins and are the parallel inputs to the PISO. These will be connected to the data pins of the W27E040 and do not consume any RPi pins. The RPi pins will control the clock, parallel/serial control, and Q8. The Q8, Q7, and Q6 pins are serial out registers. This effort will only use the high order Q8 pin. This accounts for the three pins needed by the RPi to clock in data
 
 ![](RackMultipart20220306-4-1h7bbh1_html_2b5572d86a560dc9.png)
 
 Figure 13
 
-## CD4021-BE operation <a name=""></a>:
+## CD4021-BE operation <a name="CD4021_Operations"></a>:
 
 Operation of the CD4021-BE is fairly straight forward.
 
@@ -314,7 +314,7 @@ This Python code snippet has three variables Latch, Clock, and &quot;outbyte&quo
 
 Next is the loop, remember, the Q8 pin of the PISO has the value of the high order bit of the 8 bit data word. Each iteration will shift &quot;outbyte&quot; 1 bit and then add in the read data bit to outbyte. Finally, the clock pin is cycled causing all the data bits in the PISO to shift 1 toward the high bit (as wired). After 8 steps through we have the day byte in the correct order.
 
-## EEPROM dump code <a name=""></a>:
+## EEPROM dump code <a name="W27E040_Dump"></a>:
 
 ![Shape3](RackMultipart20220306-4-1h7bbh1_html_d3a0b1f609e3c6d2.gif)
 
@@ -404,9 +404,9 @@ Figure 16
 
 This is a little cleaner code then what was used in the previous dump. A function has been defined to interact with the PISO chip to pull data bytes. The main address loop only needs to break out each address bit and use them to set the W27E040 address lines. Once set, the get\_data function is called, and the data byte is written to the output file.
 
-## W27E040-12 Data <a name=""></a>:
+## W27E040-12 Data <a name="W27E040_data"></a>:
 
-### Data identification <a name=""></a>:
+### Data identification <a name="Data_ID"></a>:
 
 ![](RackMultipart20220306-4-1h7bbh1_html_826de4417f5ddb66.png)
 
@@ -422,7 +422,7 @@ Where the filename W27E040.dmp was hardcoded in the code illustrated in figure 1
 
 there was a hit on a website that described the formatting of FON files used in the computer game called &quot;FALLOUT&quot; at [https://falloutmods.fandom.com/wiki/FON\_File\_Format](https://falloutmods.fandom.com/wiki/FON_File_Format). A screen shot of the file format with the coding description is given in figure 18.
 
-### FOS data <a name=""></a>:
+### FOS data <a name="FOS_Data"></a>:
 
 ![](RackMultipart20220306-4-1h7bbh1_html_eb1712e86c987848.png)
 
@@ -478,7 +478,7 @@ sleep(0.5)
 
 data.close()
 
-**Decode** :
+## Decode <a name="decode"></a>:
 
 Figure 19
 
@@ -490,9 +490,9 @@ Figure 20
 
 There was no real point in investigating the data other then to see what was on the used EEPROM chips. Also, the data doens not necessarily have anything to do with the game Fallout. It is just the source used to identify the data and encoding scheme.
 
-## Erasing the W27E040-12: <a name=""></a>
+## Erasing the W27E040-12: <a name="Erase_W27E040"></a>
 
-### Erase Connections: <a name=""></a>
+### Erase Connections: <a name="Erase_Connections"></a>
 
 The W27B256 differs from the M27C256B in that it can be erased electrically. There is no need to use devices like UV lamps. The W27B256 is a little chalanging because it does not use 5V and control pins to erase or program the chip. Specifically, a 14 V source is required to erase the W27B256. Figure 21 illustrates the harness used to erase the W27C256 chip. To erase the chip the following pin assignments must be made:
 
@@ -509,7 +509,7 @@ The W27B256 differs from the M27C256B in that it can be erased electrically. The
 
 Figure 21
 
-## Voltage Dividers Up Close <a name=""></a>:
+## Voltage Dividers Up Close <a name="Voltage_Dividers"></a>:
 
 The complication for erasing data was the need to supply several different voltage sources. This was done using the concept of voltage dividers. A simple voltage divider is illustrated in figure 22.
 
@@ -542,9 +542,9 @@ Figure 22
 
 Once configured. The chip is connected and the Erasure takes a few miliseconds. Each chip was erased and then put in the dump harness to verify that the data was all 1&#39;s. In figure 22, the red rail is 14 volts, the first set of resistors is for 5V (4.8 actual)
 
-# Programming the Chips <a name=""></a>:
+# Programming the Chips <a name="Programming_Chips"></a>:
 
-## Programming the M27C256B <a name=""></a>:
+## Programming the M27C256B <a name="Prog_M27C256B"></a>:
 
 ![](RackMultipart20220306-4-1h7bbh1_html_15971945e86f08eb.png)
 
@@ -552,7 +552,7 @@ Figure 23
 
 Figure 23 illustrates the operation flow taken from the chip manufacturer data sheet to program the M27C256B chip. In words, this flow will walk through a write operation in two main phases. The first is the the initial write. For all writes the output enable E\_bar pin is kept high since we are performing a write operation and E\_bar is active low. Once the address and data values are presented to the address and data pins and the time to stabilize is passed, the chip enable which is held high is pulsed low. This enables the chip and the write operation. Where the flow goes next is a function of the Verify which will read the byte just written and verify that it is correct. If it is, the address is steped to the next address with the associated data. If the verification fails, the flow will pass to the left which will continue to write by pulsing the chip enable and will continue write attempts until it succeds or 25 attempts have been made.
 
-## Chip Specifications for Write Operations <a name=""></a>:
+## Chip Specifications for Write Operations <a name="Chip_Specs_Write"></a>:
 
 To do the write, the M27C256B has specific voltage requirements that differ from the read operations voltage Vcc, VIL VIH. To program the EPROM, the programming pin Vpp needs to be set to 12.75 volts. The specifications also call for Vcc to be 6.25 volts. Since the Rpi can only supply 5 volts through the GPIO a second power source will need to be used. Care must be taken on the second power supply. If you supply greater then 5V to and pin on the GPIO, it will be damaged. Figure 24 illustrates the writing harness. There are three components, the Rpi, Chip+breadboard, and the Kungber DC power supply. The DC power supply is configured with V- tied to ground. To ensure a consistant voltage referance across the three components, the ground from the DC power supply and the GPIO ground are tied together on the Chip breadboard.
 
@@ -564,7 +564,7 @@ Figure 24
 
 Even though the specification calls for 6.25 volts on Vcc for write operations, this write attempt was done with Vcc at 5V pulled from the GPIO. This was done to minimize the chance of over driving the GPIO pins. For this test, the only positive voltage pulled from the DC power source is the 12.75 programming voltage connected to Vpp. It turns out that this is sufficient for programming the chip.
 
-## Data and Code for Write Operation <a name=""></a>:
+## Data and Code for Write Operation <a name="Data_Code_Write"></a>:
 
 To minimize the number of GPIO pins needed to test out the write operations, the 8 data pins are tied to the low order 8 address pins. This means the memory location data assignment will equal the memory location address. If all works the zeroith address will contain 0x00, address 1 will contain 0x01, .., address 254 will contain 0xfe, and address 255 will contain 0xff.
 
@@ -580,7 +580,7 @@ Finally, the write operation will only write to addresses 0 through 255.
 
 Figure 25
 
-### Verification of the write operation <a name=""></a>:
+### Verification of the write operation <a name="Verification_Write"></a>:
 
 To verify the write operation, the data pins need to be connected and the hardwire connections between the address and data pins used for the the above write operations need to be removed. This is essentially the same python code used for the original dump but here, only address zero through 0x3ff will be read since address above 0xff were not programmed. The commented code was added for development to enable single stepping and debugging but was commented out in the final run
 
@@ -654,7 +654,7 @@ The hex dump of the verify operation is listed in figure 2
 
 Figure 27
 
-## Programming the W27E040-12 <a name=""></a>:
+## Programming the W27E040-12 <a name="Programming_W27E040-12"></a>:
 
 The W27E040-12 is very similar to the M27C256 for programming. From the datasheet for the W27E040-12:
 
