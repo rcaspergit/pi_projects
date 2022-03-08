@@ -111,7 +111,7 @@ Figure 4
 
 ### Initial Connections <a name="Initial_Connections"></a> :
 
-Figure 5 below illustrates the initial connections for the M27C256B chip. Using the pin out information from figure 1 the power, control, address and data pins are connected. In figure 4 the positive and ground rails are connected to pins 14 (ground) and 28 (Vcc = 5V) of the M27C256B. All address pins are connected to ground through 500 ohm resisters as pull down resisters ensuring well defined &quot;low&quot; values for all address pins. All data pins are connected to the positive side of the &quot;data&quot; LED&#39;s. The low side of each LED is connected to ground through 500 ohm resisters. The resistors are used to both configure the default state of pins (pull-down, or pull-up) and also as current limiters.
+Figure 5 below illustrates the initial connections for the M27C256B chip. Using the pin out information from figure 1 the power, control, address and data pins are connected. In figure 4 the positive and ground rails are connected to pins 14 (ground) and 28 (Vcc = 5V) of the M27C256B. All address pins are connected to ground through 500 ohm resisters as pull down resisters ensuring well defined low values for all address pins. All data pins are connected to the positive side of the "data" LED's. The low side of each LED is connected to ground through 500 ohm resisters. The resistors are used to both configure the default state of pins (pull-down, or pull-up) and also as current limiters.
 
 Figure 4 also has a free yellow connector connected to Vcc on one side. This connector can be used to look at different memory location by connecting it to various address pins bringing them high. When the M27C256B chip was aquired, it contained data indicating the chip was used. By bringing each of the 15 address pins high different addresses can be accessed.
 
@@ -119,7 +119,7 @@ Figure 4 also has a free yellow connector connected to Vcc on one side. This con
 
 Figure 5
 
-In figures 1 and 5, the UV reprogramming window can be identified. This window allows light to cover the die. If that light has a UV component it will set all bits in the chip to logical 1. Programming only converts logical 1&#39;s to logical zero (open). This will be discussed later in the document.
+In figures 1 and 5, the UV reprogramming window can be identified. This window allows light to cover the die. If that light has a UV component it will set all bits in the chip to logical 1. Programming only converts logical 1's to logical zero (open). This will be discussed later in the document.
 
 ## Automated address and data management via Raspberry Pi GPIO <a name="Automated_addressing"></a>:
 
@@ -133,59 +133,43 @@ For this stage of reading the chip, the Raspberry Pi will also be used to provid
 
 ## Python Code <a name="Python_Code"></a>:
 
-**import RPi.GPIO as GPIO # import RPi.GPIO module**
+```
+import RPi.GPIO as GPIO                                                     # import RPi.GPIO module
+from time import sleep                                                        # lets us have a delay
+GPIO.setmode(GPIO.BOARD)                                             # choose BCM or BOARD
 
-**from time import sleep # lets us have a delay**
+Ai = [11,13,15,16,18,22,29,31,32,33,35,36,37,38,40]     # set address pin GPIO_11 = A0, ... GPIO_40 = A14
+Bi = [3,5,7,8,10,19,21,23]                                                    # set address pins GPIO_3 = B0, … GPIO_23 = B7
 
-**GPIO.setmode(GPIO.BOARD) # choose BCM or BOARD**
+for y in range(len(Bi)):                                                         # initialize Raspberry Pi pins for addressing
+     GPIO.setup(Bi[y],GPIO.IN)
 
-**Ai = [11,13,15,16,18,22,29,31,32,33,35,36,37,38,40] # set address pin GPIO\_11 = A0, ... GPIO\_40 = A14**
+dump = 0x00
+outbin = open("chip.dmp", "wb")
+count = 0
 
-**Bi = [3,5,7,8,10,19,21,23]****# set address pins GPIO\_3 = B0, … GPIO\_23 = B7**
+for y in  range(len(Ai)):                                                       # initialize Raspberry Pi pins for data input
+    GPIO.setup(Ai[y], GPIO.OUT, initial=0)
 
-**for y in range(len(Bi)):****# initialize Raspberry Pi pins for addressing**
+for y in  range(15):                                                              # run through address pins for hardware verification
+    GPIO.output(Ai[y], 1)                                                     # set each address pin high in order A0 on chip to A14
+    print("bit " + str(y))                                                        # Identify the bit position just activated
+    var = input("hit key when ready for next bit")        # wait for keyboard input to activate the next pin
 
-**GPIO.setup(Bi[y],GPIO.IN)**
+try:
+     for x in range(0x0,0x7ffff):                                            # walk through all addresses sequentially 0 -(2^15 - 1)
+        for y in range(len(Ai)):                                                # for each address, set the appropriate address pin values
+            GPIO.output(Ai[y],((x>>y)&1))
+        for bits in range(8):                                                     # read associated data bits and pack then in a output byte
+            dump = dump | (GPIO.input(Bi[bits]) << bits)
+        outbin.write(dump.to_bytes(1,byteorder='little'))  # write the data out to the output file
+        dump=0
 
-**dump = 0x00**
+except KeyboardInterrupt:                                                         # trap a CTRL+C keyboard interrupt
+    GPIO.cleanup()
+GPIO.cleanup()                                                                              # cleanup GPIO pins
 
-**outbin = open(&quot;chip.dmp&quot;, &quot;wb&quot;)**
-
-**count = 0**
-
-**for y in range(len(Ai)):****# initialize Raspberry Pi pins for data input**
-
-**GPIO.setup(Ai[y], GPIO.OUT, initial=0)**
-
-**for y in range(15):****# run through address pins for hardware verification**
-
-**GPIO.output(Ai[y], 1) # set each address pin high in order A0 on chip to A14**
-
-**print(&quot;bit &quot; + str(y)) # Identify the bit position just activated**
-
-**var = input(&quot;hit key when ready for next bit&quot;) # wait for keyboard input to activate the next pin**
-
-**try:**
-
-**for x in range(0x0,0x7ffff):****# walk through all addresses sequentially 0 -(2^15 - 1)**
-
-**for y in range(len(Ai)): # for each address, set the appropriate address pin values**
-
-**GPIO.output(Ai[y],((x\&gt;\&gt;y)&amp;1))**
-
-**for bits in range(8): # read associated data bits and pack then in a output byte**
-
-**dump = dump | (GPIO.input(Bi[bits]) \&lt;\&lt; bits)**
-
-**outbin.write(dump.to\_bytes(1,byteorder=&#39;little&#39;))****# write the data out to the output file**
-
-**dump=0**
-
-**except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt**
-
-**GPIO.cleanup()**
-
-**GPIO.cleanup() # cleanup GPIO pins**
+```
 
 The code above has four major components. The first is the mapping of GPIO pins to address and data bits. There are 15 address bits mapped to GPIO bits as defined in the array Ai. The data bits are mapped to GPIO pins as defined in the array Bi.
 
@@ -205,13 +189,13 @@ As shown in figure 7 below:
 
 Figure 7
 
-Prior to dumping the EPROM both the python code and the wiring of the harness needs to be verified. For the address and data pins the connections between the address array positions that map to specific GPIO\_pins must be connected to the correct address pins. To verify this, the array is stepped through and enabling each address pin in the address sequence from A0 to A14. At each step the most recently enabled address pin is connected to a test diode, the blue diode in the above picture to ensure the correct pin active and no other pins are illuminated.
+Prior to dumping the EPROM both the python code and the wiring of the harness needs to be verified. For the address and data pins the connections between the address array positions that map to specific GPIO_pins must be connected to the correct address pins. To verify this, the array is stepped through and enabling each address pin in the address sequence from A0 to A14. At each step the most recently enabled address pin is connected to a test diode, the blue diode in the above picture to ensure the correct pin active and no other pins are illuminated.
 
-Using the same process the data packing can be verified. In this case rather than looping through all memory locations, several locations with different data values are selected. The data values can be read off the red LED&#39;s which indicate the data bits. The python code then takes the same string of zero and ones and packs them into the output word. The output word is then verified against the LED values.
+Using the same process the data packing can be verified. In this case rather than looping through all memory locations, several locations with different data values are selected. The data values can be read off the red LED's which indicate the data bits. The python code then takes the same string of zero and ones and packs them into the output word. The output word is then verified against the LED values.
 
 ## Dumping the EPROM <a name="Dumping_Prom"></a>:
 
-For dumping the EPROM the code section to test out the harness can be commented out and the main loop is set to run through (0 -\&gt; 2^15-1) memory locations. For the read, the LED&#39;s were left connected to monitor the data flow. Below is a dump of the first few pages of the M27C256B chip.
+For dumping the EPROM the code section to test out the harness can be commented out and the main loop is set to run through (0 -2^15-1) memory locations. For the read, the LED's were left connected to monitor the data flow. Below is a dump of the first few pages of the M27C256B chip.
 
 ![](RackMultipart20220306-4-1h7bbh1_html_aa499d64b6b59c1d.png)
 
@@ -231,7 +215,7 @@ pictured in figure 8. It is a BLAK-RAY mineralight with windows for both long-wa
 
 Figure 9
 
-The M27C256B chip was placed over the UV light, 280 nm for one hour. The chip was then placed back in the test harness and all addresses were accessed and the data bits were all 1, the data LED&#39;s never went out demonstrating that the Chip has been successfully erased.
+The M27C256B chip was placed over the UV light, 280 nm for one hour. The chip was then placed back in the test harness and all addresses were accessed and the data bits were all 1, the data LEDs never went out demonstrating that the Chip has been successfully erased.
 
 ## W27E040-12 <a name="W27E040"></a>:
 
@@ -276,133 +260,97 @@ Operation of the CD4021-BE is fairly straight forward.
 
 Figure 14
 
-Figure 14 is a simplified connection diagram illustrates the data flow from the EEPROM to the PISO shift register and finally to the RPi. The 8 data lines of the EEPROM are connected to the 8 parallel in pins of the PISO. The values of the data pins are always available to the PISO. Internally, the PISO can be thought of as 8 storage units. When the Parallel serial control is brought high, and the clock is strobed, the values presented to the 8 inputs of the PISO will be latched into the 8 storage units. From the Q8 pin the value of the 8th storage register can be read when the serial /parallel control is held low. On every clock pulse with the parallel/serial control pin low the contents of the storage unit at position &quot;n&quot; will be replaced with the value of the storage register and position &quot;n-1&quot;. So after the data is latched into the PISO, Q8 holds the high order bit. After a clock cycle, Q8 holds the data that was in storage unit 7, another clock cycle; Q8 has what was in storage unit 6, and so on. In this way, the data can be clocked out of the PISO and read by the RPi.
+Figure 14 is a simplified connection diagram illustrates the data flow from the EEPROM to the PISO shift register and finally to the RPi. The 8 data lines of the EEPROM are connected to the 8 parallel in pins of the PISO. The values of the data pins are always available to the PISO. Internally, the PISO can be thought of as 8 storage units. When the Parallel serial control is brought high, and the clock is strobed, the values presented to the 8 inputs of the PISO will be latched into the 8 storage units. From the Q8 pin the value of the 8th storage register can be read when the serial /parallel control is held low. On every clock pulse with the parallel/serial control pin low the contents of the storage unit at position "n" will be replaced with the value of the storage register and position "n-1". So after the data is latched into the PISO, Q8 holds the high order bit. After a clock cycle, Q8 holds the data that was in storage unit 7, another clock cycle; Q8 has what was in storage unit 6, and so on. In this way, the data can be clocked out of the PISO and read by the RPi.
 
 The code snippet used to clock data out of the PISO is listed below:
 
 ![Shape2](RackMultipart20220306-4-1h7bbh1_html_53b54d6979e7c8fb.gif)
 
-def get\_data():
-
-outbyte = 0
-
-GPIO.output(Latch,1)
-
-GPIO.output(Clock,1)
-
-GPIO.output(Clock,0)
-
-GPIO.output(Latch,0)
-
-for i in range(8):
-
-bit = GPIO.input(Data)
-
-outbyte = outbyte \&lt;\&lt; 1
-
-outbyte |= bit
-
-GPIO.output(Clock,1)
-
-GPIO.output(Clock,0)
-
-return outbyte
+```
+def get_data():
+    outbyte = 0
+    GPIO.output(Latch,1)
+    GPIO.output(Clock,1)
+    GPIO.output(Clock,0)
+    GPIO.output(Latch,0)
+    for i in range(8):
+        bit = GPIO.input(Data)
+        outbyte = outbyte << 1
+        outbyte |= bit
+        GPIO.output(Clock,1)
+        GPIO.output(Clock,0)
+    return outbyte
+```
 
 Figure 15
 
-This Python code snippet has three variables Latch, Clock, and &quot;outbyte&quot;. For each data event there are 4 GPIO events. The first sets the latch to one. Latch corresponds to the Parallel/Serial control. It enables the parallel read on all 8 data lines. The next command, GPIO.output (Clock, 1), strobes the clock which completes the load into the PISO storage registers (D-Flip-flop). The next two commands take clock to zero for the negative transition. The GPIO.output (Latch, 0) puts the PISO devices in serial mode to begin the read.
+This Python code snippet has three variables Latch, Clock, and "outbyte". For each data event there are 4 GPIO events. The first sets the latch to one. Latch corresponds to the Parallel/Serial control. It enables the parallel read on all 8 data lines. The next command, GPIO.output (Clock, 1), strobes the clock which completes the load into the PISO storage registers (D-Flip-flop). The next two commands take clock to zero for the negative transition. The GPIO.output (Latch, 0) puts the PISO devices in serial mode to begin the read.
 
-Next is the loop, remember, the Q8 pin of the PISO has the value of the high order bit of the 8 bit data word. Each iteration will shift &quot;outbyte&quot; 1 bit and then add in the read data bit to outbyte. Finally, the clock pin is cycled causing all the data bits in the PISO to shift 1 toward the high bit (as wired). After 8 steps through we have the day byte in the correct order.
+Next is the loop, remember, the Q8 pin of the PISO has the value of the high order bit of the 8 bit data word. Each iteration will shift "outbyte"; 1 bit and then add in the read data bit to outbyte. Finally, the clock pin is cycled causing all the data bits in the PISO to shift 1 toward the high bit (as wired). After 8 steps through we have the day byte in the correct order.
 
 ## EEPROM dump code <a name="W27E040_Dump"></a>:
 
 ![Shape3](RackMultipart20220306-4-1h7bbh1_html_d3a0b1f609e3c6d2.gif)
 
-import RPi.GPIO as GPIO # import RPi.GPIO module
-
-from time import sleep # lets us have a delay
-
-GPIO.setmode(GPIO.BOARD) # choose BCM or BOARD
-
+```
+import RPi.GPIO as GPIO            # import RPi.GPIO module
+from time import sleep             # lets us have a delay
+GPIO.setmode(GPIO.BOARD)             # choose BCM or BOARD
 import pdb
+
 
 Ai = [31,29,23,21,19,15,13,11,18,22,26,24,7,16,12,5,3,10,8]
 
 Latch = 36
-
 Clock = 38
-
 Data = 40
 
 GPIO.setup(Latch,GPIO.OUT,initial=0)
-
 GPIO.setup(Data,GPIO.IN)
-
 GPIO.setup(Clock,GPIO.OUT,initial=0)
 
-outfile = open(&quot;w27e040.dmp&quot;, &quot;wb&quot;)
+outfile = open("w27e040.dmp", "wb")
 
-def get\_data():
+def get_data():
+    outbyte = 0
+    GPIO.output(Latch,1)
+    GPIO.output(Clock,1)
+    GPIO.output(Clock,0)
+    GPIO.output(Latch,0)
+    for i in range(8):
+        bit = GPIO.input(Data)
+        outbyte = outbyte << 1
+        outbyte |= bit
+        GPIO.output(Clock,1)
+        GPIO.output(Clock,0)
+    return outbyte
 
-outbyte = 0
-
-GPIO.output(Latch,1)
-
-GPIO.output(Clock,1)
-
-GPIO.output(Clock,0)
-
-GPIO.output(Latch,0)
-
-for i in range(8):
-
-bit = GPIO.input(Data)
-
-outbyte = outbyte \&lt;\&lt; 1
-
-outbyte |= bit
-
-GPIO.output(Clock,1)
-
-GPIO.output(Clock,0)
-
-return outbyte
 
 index = 0
+for y in  Ai:
+    print(index,Ai[index])
+    GPIO.setup(Ai[index], GPIO.OUT, initial=0)
+    index = index +1
 
-for y in Ai:
-
-print(index,Ai[index])
-
-GPIO.setup(Ai[index], GPIO.OUT, initial=0)
-
-index = index +1
-
-# pdb.set\_trace()
-
+# pdb.set_trace()
 try:
+     for x in range(0x0,0x7ffff):
+        for y in range(19):
+            GPIO.output(Ai[y],((x>>y)&1))
+        outbyte = get_data()
+        outfile.write(outbyte.to_bytes(1,byteorder='big'))
+     outfile.close()
 
-for x in range(0x0,0x7ffff):
-
-for y in range(19):
-
-GPIO.output(Ai[y],((x\&gt;\&gt;y)&amp;1))
-
-outbyte = get\_data()
-
-outfile.write(outbyte.to\_bytes(1,byteorder=&#39;big&#39;))
-
-outfile.close()
-
-except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt
+except KeyboardInterrupt:          # trap a CTRL+C keyboard interrupt
+    GPIO.cleanup()
 
 GPIO.cleanup()
 
-GPIO.cleanup()
+```
 
 Figure 16
 
-This is a little cleaner code then what was used in the previous dump. A function has been defined to interact with the PISO chip to pull data bytes. The main address loop only needs to break out each address bit and use them to set the W27E040 address lines. Once set, the get\_data function is called, and the data byte is written to the output file.
+This is a little cleaner code then what was used in the previous dump. A function has been defined to interact with the PISO chip to pull data bytes. The main address loop only needs to break out each address bit and use them to set the W27E040 address lines. Once set, the get_data function is called, and the data byte is written to the output file.
 
 ## W27E040-12 Data <a name="W27E040_data"></a>:
 
@@ -420,7 +368,7 @@ Where the filename W27E040.dmp was hardcoded in the code illustrated in figure 1
 
 7e 81 a5 81 81 bd 99 81 81 7e
 
-there was a hit on a website that described the formatting of FON files used in the computer game called &quot;FALLOUT&quot; at [https://falloutmods.fandom.com/wiki/FON\_File\_Format](https://falloutmods.fandom.com/wiki/FON_File_Format). A screen shot of the file format with the coding description is given in figure 18.
+there was a hit on a website that described the formatting of FON files used in the computer game called "FALLOUT" at [https://falloutmods.fandom.com/wiki/FON\_File\_Format](https://falloutmods.fandom.com/wiki/FON_File_Format). A screen shot of the file format with the coding description is given in figure 18.
 
 ### FOS data <a name="FOS_Data"></a>:
 
@@ -432,51 +380,38 @@ Following the encode/decode procedure as stated the python code listed in figure
 
 ![Shape4](RackMultipart20220306-4-1h7bbh1_html_6d123e7f80f1104b.gif)
 
+```
 import sys
-
 from time import sleep
 
+
 args = sys.argv[1:]
-
-data = open(args[0],&quot;rb&quot;)
-
+data = open(args[0],"rb")
 data.seek(0x2010)
 
-def build\_string\_line(inbyte):
 
-outstring = &quot;&quot;
-
-littlec = &quot;&quot;
-
-for i in range(8):
-
-bit = (inbyte\&gt;\&gt;i)&amp;1
-
-if (bit == 1):
-
-littlec = &quot;\*&quot;
-
-else:
-
-littlec = &quot; &quot;
-
-outstring += littlec
-
-return outstring
+def build_string_line(inbyte):
+    outstring = ""
+    littlec = ""
+    for i in range(8):
+        bit = (inbyte>>i)&1
+        if (bit == 1):
+            littlec = "*"
+        else:
+            littlec = " "
+        outstring += littlec
+    return outstring
 
 for i in range(1024):
-
-bytes = data.read(16)
-
-for j in range(16):
-
-img\_line = build\_string\_line(bytes[j])
-
-print (&quot; &quot; + img\_line)
-
-sleep(0.5)
+    bytes = data.read(16)
+    for j in range(16):
+        img_line = build_string_line(bytes[j])
+        print ("                  " + img_line)
+    sleep(0.5)
 
 data.close()
+
+```
 
 ## Decode <a name="decode"></a>:
 
@@ -498,8 +433,8 @@ The W27B256 differs from the M27C256B in that it can be erased electrically. The
 
 - Vpp = 14 V
 - Vcc = Vce = 5V
-- CE \_bar = VIL (0.8 volts or lower but above ground)
-- OE\_bar = VIH (2.0 V or above but lower then Vcc)
+- CE _bar = VIL (0.8 volts or lower but above ground)
+- OE_bar = VIH (2.0 V or above but lower then Vcc)
 - A9 = VHH(14V)
 - A0 = VIL
 - All other address pins to be held a VIL
@@ -540,7 +475,7 @@ Top resistor is 150 Ohm, botton is 270 ohm. Voltage measured between the resisto
 
 Figure 22
 
-Once configured. The chip is connected and the Erasure takes a few miliseconds. Each chip was erased and then put in the dump harness to verify that the data was all 1&#39;s. In figure 22, the red rail is 14 volts, the first set of resistors is for 5V (4.8 actual)
+Once configured. The chip is connected and the Erasure takes a few miliseconds. Each chip was erased and then put in the dump harness to verify that the data was all 1's. In figure 22, the red rail is 14 volts, the first set of resistors is for 5V (4.8 actual)
 
 # Programming the Chips <a name="Programming_Chips"></a>:
 
@@ -550,7 +485,7 @@ Once configured. The chip is connected and the Erasure takes a few miliseconds. 
 
 Figure 23
 
-Figure 23 illustrates the operation flow taken from the chip manufacturer data sheet to program the M27C256B chip. In words, this flow will walk through a write operation in two main phases. The first is the the initial write. For all writes the output enable E\_bar pin is kept high since we are performing a write operation and E\_bar is active low. Once the address and data values are presented to the address and data pins and the time to stabilize is passed, the chip enable which is held high is pulsed low. This enables the chip and the write operation. Where the flow goes next is a function of the Verify which will read the byte just written and verify that it is correct. If it is, the address is steped to the next address with the associated data. If the verification fails, the flow will pass to the left which will continue to write by pulsing the chip enable and will continue write attempts until it succeds or 25 attempts have been made.
+Figure 23 illustrates the operation flow taken from the chip manufacturer data sheet to program the M27C256B chip. In words, this flow will walk through a write operation in two main phases. The first is the the initial write. For all writes the output enable E_bar pin is kept high since we are performing a write operation and E_bar is active low. Once the address and data values are presented to the address and data pins and the time to stabilize is passed, the chip enable which is held high is pulsed low. This enables the chip and the write operation. Where the flow goes next is a function of the Verify which will read the byte just written and verify that it is correct. If it is, the address is steped to the next address with the associated data. If the verification fails, the flow will pass to the left which will continue to write by pulsing the chip enable and will continue write attempts until it succeds or 25 attempts have been made.
 
 ## Chip Specifications for Write Operations <a name="Chip_Specs_Write"></a>:
 
@@ -570,7 +505,7 @@ To minimize the number of GPIO pins needed to test out the write operations, the
 
 Python code for the write operation:
 
-Figure 25 illustrates the code for writing data to the M27C256B. Common with previous sets of code the GPIO pins are set. The code does not need GPIO pins to set the data bits to the M27C256. The bit assignments are hardwires as follows A0 -\&gt; D0, A1 -\&gt;D1, A2-\&gt;D2, .. , A7-\&gt;D7. There are two additional control pins assigned, The chip enable and output enable are set in the code. The output enable pin is set to high disabling output and setting up the data pins for input. From the specifications, the write operation takes place with Vpp = 12.75 volts, the address and data pins are set and ready, the output enable bit is set to high, and the chip enable bit is strobed. The chip specification calls for the chip enable pin to be taken low for at least 100 ns. This is seen in the last loop section in the &quot;try&quot; part of the code.
+Figure 25 illustrates the code for writing data to the M27C256B. Common with previous sets of code the GPIO pins are set. The code does not need GPIO pins to set the data bits to the M27C256. The bit assignments are hardwires as follows A0 -> D0, A1 -> D1, A2-> D2, .. , A7 -> D7. There are two additional control pins assigned, The chip enable and output enable are set in the code. The output enable pin is set to high disabling output and setting up the data pins for input. From the specifications, the write operation takes place with Vpp = 12.75 volts, the address and data pins are set and ready, the output enable bit is set to high, and the chip enable bit is strobed. The chip specification calls for the chip enable pin to be taken low for at least 100 ns. This is seen in the last loop section in the "try" part of the code.
 
 A second simplificatin was made for this test. Rather then do a read verify for each memory location and perfom the additional writes till the data is properly set, this code will write each memory location 10 times. The contents of the chip will be verified after the write operation is complete.
 
@@ -586,65 +521,48 @@ To verify the write operation, the data pins need to be connected and the hardwi
 
 ![Shape12](RackMultipart20220306-4-1h7bbh1_html_f52d56911051f045.gif)
 
-**import RPi.GPIO as GPIO # import RPi.GPIO module**
+```
+import RPi.GPIO as GPIO            # import RPi.GPIO module
+from time import sleep             # lets us have a delay
+GPIO.setmode(GPIO.BOARD)             # choose BCM or BOARD
 
-**from time import sleep # lets us have a delay**
+Ai = [11,13,15,16,18,22,29,31,32,33,35,36,37,38,40]
+Bi = [3,5,7,8,10,19,21,23]
 
-**GPIO.setmode(GPIO.BOARD) # choose BCM or BOARD**
+for y in range(len(Bi)):
+     GPIO.setup(Bi[y],GPIO.IN)
 
-**Ai = [11,13,15,16,18,22,29,31,32,33,35,36,37,38,40]**
+dump = 0x00
+outbin = open("chip.dmp", "wb")
+count = 0
 
-**Bi = [3,5,7,8,10,19,21,23]**
+OutputEnable = 24
+ChipEnable = 26
 
-**for y in range(len(Bi)):**
+GPIO.setup(OutputEnable, GPIO.OUT, initial=0)
+GPIO.setup(ChipEnable, GPIO.OUT, initial=0)
 
-**GPIO.setup(Bi[y],GPIO.IN)**
+for y in  range(len(Ai)):
+    GPIO.setup(Ai[y], GPIO.OUT, initial=0)
 
-**dump = 0x00**
+try:
+     for x in range(0x0,0x3ff):
+        for y in range(len(Ai)):
+            GPIO.output(Ai[y],((x>>y)&1))
+        for bits in range(8):
+            dump = dump | (GPIO.input(Bi[bits]) << bits)
+        outbin.write(dump.to_bytes(1,byteorder='little'))
+#        print("address " + str(x) + "Byte Read " +hex(dump))
+#        var = input("hit key")
+        dump=0
+        sleep(0.05)
 
-**outbin = open(&quot;chip.dmp&quot;, &quot;wb&quot;)**
+except KeyboardInterrupt:          # trap a CTRL+C keyboard interrupt
+    GPIO.cleanup()
 
-**count = 0**
+GPIO.cleanup()
 
-**OutputEnable = 24**
-
-**ChipEnable = 26**
-
-**GPIO.setup(OutputEnable, GPIO.OUT, initial=0)**
-
-**GPIO.setup(ChipEnable, GPIO.OUT, initial=0)**
-
-**for y in range(len(Ai)):**
-
-**GPIO.setup(Ai[y], GPIO.OUT, initial=0)**
-
-**try:**
-
-**for x in range(0x0,0x3ff):**
-
-**for y in range(len(Ai)):**
-
-**GPIO.output(Ai[y],((x\&gt;\&gt;y)&amp;1))**
-
-**for bits in range(8):**
-
-**dump = dump | (GPIO.input(Bi[bits]) \&lt;\&lt; bits)**
-
-**outbin.write(dump.to\_bytes(1,byteorder=&#39;little&#39;))**
-
-**# print(&quot;address &quot; + str(x) + &quot;Byte Read &quot; +hex(dump))**
-
-**# var = input(&quot;hit key&quot;)**
-
-**dump=0**
-
-**sleep(0.05)**
-
-**except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt**
-
-**GPIO.cleanup()**
-
-**GPIO.cleanup()**
+```
 
 Figure 26
 
@@ -658,14 +576,14 @@ Figure 27
 
 The W27E040-12 is very similar to the M27C256 for programming. From the datasheet for the W27E040-12:
 
-&quot;Program Mode
+"Program Mode
 
 Programming is performed exactly as it is in conventional UVEPROMs, and programming is the only
 
-way to change cell data from &quot;1&quot; to &quot;0.&quot; The program mode is entered when VPP is raised to VPP
+way to change cell data from 1 to 0. The program mode is entered when VPP is raised to VPP
 
 (12V), VCC = VCP (5V), CE = VIL, OE = VIH, the address pins equal the desired address, and the input
 
-pins equal the desired inputs &quot;
+pins equal the desired inputs;
 
 Rather then repeat the work done above for the M27C256. The activities will move to a EEPROM that supports reads and writes using only 5V power supply.
