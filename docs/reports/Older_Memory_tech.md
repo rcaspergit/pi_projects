@@ -225,13 +225,13 @@ The second difference with the W27E040-12 is the method of erasure. It is a EEPR
 
 To support connectivity between the chips, breadboard, and RPi, and GPIO extender board will be used. The complete harness is shown below in figure 10. The view in figure 10 illustrates the connection between the RPi and the GPIO extension board which plugs into the standard breadboard connections. Using standard 22 gauge breadboard wiring for the majority of the connectios makes for a much cleaner harness. In general, yellow will be used for addressing, blue for data, red for power, black for ground, and white for PISO control and serial data pin connections.
 
-![](RackMultipart20220306-4-1h7bbh1_html_42156028a31b73e9.jpg)
+![](../images/memory/W27E040-12/W27E040-12_harness.png)
 
 Figure 10
 
 Figure 11 shows a close up of the bread board including the addressing and data connections. Additinoally, the 4021 PISO chip
 
-![](RackMultipart20220306-4-1h7bbh1_html_75af58404d88b58a.jpg)
+![](../images/memory/W27E040-12/W27E040-12_closeup.png)
 
 Figure 11
 
