@@ -54,20 +54,17 @@ Other tools used for development and testing include a voltmeter, an SDS 1202X-E
 
 ## M27C256B EPROM <a name="M27C256B_EPROM"></a> :
 
-<p align="center">
-  <img src="../images/memory/M27C256B/M27C256_chip_pinout.png" />
-</p>
 
-![M27C256 Chip](../images/memory/M27C256B/M27C256_chip_pinout.png "M27C256 Chip")
-Figure 1
+![M27C256 Chip](../images/memory/M27C256B/M27C256_chip_pinout.png)
+figure 1
 
 The M27C256B is a UV erasable 15 bit EProm with an 8 bit data output. From the ST Electronics data sheet dated april 2006:
 
-&quot;The M27W256 is a low voltage 256 Kbit EPROM offered in the two ranges UV (ultra violet erase) and OTP (one time programmable). It is ideally suited for microprocessor systems and is organized as 32,768 by 8 bits.
+"The M27W256 is a low voltage 256 Kbit EPROM offered in the two ranges UV (ultra violet erase) and OTP (one time programmable). It is ideally suited for microprocessor systems and is organized as 32,768 by 8 bits.
 
 The M27W256 operates in the read mode with a supply voltage as low as 3V. The decrease in operating power allows either a reduction of the size of the battery or an increase in the time between battery recharges.
 
-The FDIP28W (window ceramic frit-seal package) has a transparent lid which allows the user to expose the chip to ultraviolet light to erase the bit pattern. A new pattern can then be written to the device by following the programming procedure. For applications where the content is programmed only one time and erasure is not required, the M27W256 is offered in PDIP28, PLCC32 and TSOP28 (8 x 13.4 mm) packages.&quot;
+The FDIP28W (window ceramic frit-seal package) has a transparent lid which allows the user to expose the chip to ultraviolet light to erase the bit pattern. A new pattern can then be written to the device by following the programming procedure. For applications where the content is programmed only one time and erasure is not required, the M27W256 is offered in PDIP28, PLCC32 and TSOP28 (8 x 13.4 mm) packages."
 
 ## Initial Read <a name="Initial_Read"></a> :
 
