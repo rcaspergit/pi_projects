@@ -84,7 +84,7 @@ For each of the above stages the wiring and harness verification steps will be d
 
 Throughout these activities standard breadboards will be used and are shown below:
 
-![](RackMultipart20220306-4-1h7bbh1_html_5438ced2ed5cef5c.jpg)
+![](../images/general/Breadboard_and_wires.png)
 
 Figure 2
 
@@ -99,13 +99,13 @@ The tools used and shown above to operate the chips are:
 
 Most of the components are self-explanatory but the USP cable will be described an a little more detail. The USB interface for most USB cables (excluding fully implemented USB-C) is a 4 wire connector. Two of the wires are power and ground (red, black) and the other two wires are signal. For this activity, the USB connector end was removed exposing the four wires. The two signal wires were cut back and taped down as they are not used. The power and ground wires were soldered to standard breadboard pins with plastic separators:
 
-![](RackMultipart20220306-4-1h7bbh1_html_4b47e49cf247e926.jpg)
+![](../images/general/pins.png)
 
 Figure 3
 
 The plastic separators align the pins to be spaced the same distance as the breadboard connectors. In this case, two pins were broken from a line a nine, keeping the two connected. These two pins were then soldered to the power and ground wires from the USB cable and wrapped with shrink wrap to protect the connections as illustrated below:
 
-![](RackMultipart20220306-4-1h7bbh1_html_19db9a22bc695f4e.jpg)
+![](../images/general/power_supply.png)
 
 Figure 4
 
@@ -115,7 +115,7 @@ Figure 5 below illustrates the initial connections for the M27C256B chip. Using 
 
 Figure 4 also has a free yellow connector connected to Vcc on one side. This connector can be used to look at different memory location by connecting it to various address pins bringing them high. When the M27C256B chip was aquired, it contained data indicating the chip was used. By bringing each of the 15 address pins high different addresses can be accessed.
 
-![](RackMultipart20220306-4-1h7bbh1_html_b183d8e102f5aea8.jpg)
+![](../images/memory/M27C256B/M27C256B_initial.jpg)
 
 Figure 5
 
@@ -125,7 +125,7 @@ In figures 1 and 5, the UV reprogramming window can be identified. This window a
 
 Accessing all memory addresses and data requires 15 connections for addresses and 8 for the 8 data pins . The Raspberry pi has sufficient IO ports to support this. For this automated dump of the entire M27C256B, 33 pins will be used on the Raspberry Pi GPIO interface pictured below.
 
-![](RackMultipart20220306-4-1h7bbh1_html_b1f0e5e9620ee311.png)
+![](../images/general/GPIO_pins.png)
 
 Figure 6
 
@@ -185,7 +185,7 @@ The last section is cleanup. The python write buffer is flushed pushing all rema
 
 As shown in figure 7 below:
 
-![](RackMultipart20220306-4-1h7bbh1_html_78d80b064475186d.jpg)
+![](../images/memory/M27C256B/M27C256B_GPIO.png)
 
 Figure 7
 
@@ -197,7 +197,7 @@ Using the same process the data packing can be verified. In this case rather tha
 
 For dumping the EPROM the code section to test out the harness can be commented out and the main loop is set to run through (0 -2^15-1) memory locations. For the read, the LED's were left connected to monitor the data flow. Below is a dump of the first few pages of the M27C256B chip.
 
-![](RackMultipart20220306-4-1h7bbh1_html_aa499d64b6b59c1d.png)
+![](../images/memory/M27C256B/initial_dump.png)
 
 At present, no analysis of the dump has been completed
 
@@ -205,13 +205,13 @@ At present, no analysis of the dump has been completed
 
 The M27C256 is a Ultraviolet light erasable EPROM. The specifications require a UV source with a frequency in the area of 250 nanometers. UV erasable will erase with a broad range of environments including direct sunlight. However the farther from the specified UV frequencies or sunlight requires longer exposure. For this activity, a UV lamp with frequency in the specified range is available and is
 
-![Picture 10](RackMultipart20220306-4-1h7bbh1_html_4f3fb8fe454f05ec.gif)
+![](../images/memory/M27C256B/UV_light.png)
 
 Figure 8
 
 pictured in figure 8. It is a BLAK-RAY mineralight with windows for both long-wave (315 nm) and short wave (280 nm). The screen behind UV lamp is a section of the chip dump showing a very rich data set. The shortwave uv light will be used for the erasure as depicted in figure 9
 
-![](RackMultipart20220306-4-1h7bbh1_html_49905fbfb1442be8.jpg)
+![](../images/memory/M27C256B/UV_erasing.png)
 
 Figure 9
 
