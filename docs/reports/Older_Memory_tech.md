@@ -54,7 +54,7 @@ Other tools used for development and testing include a voltmeter, an SDS 1202X-E
 
 ## M27C256B EPROM <a name="M27C256B_EPROM"></a> :
 
-![M27C256 Chip](images/memory/M27C256B/M27C256B.jpg "M27C256 Chip") ![](RackMultipart20220306-4-1h7bbh1_html_ed471a836f83f784.png)
+![M27C256 Chip](../images/memory/M27C256B/M27C256B.jpg "M27C256 Chip") ![](RackMultipart20220306-4-1h7bbh1_html_ed471a836f83f784.png)
 
 Figure 1
 
