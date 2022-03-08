@@ -55,7 +55,7 @@ Other tools used for development and testing include a voltmeter, an SDS 1202X-E
 ## M27C256B EPROM <a name="M27C256B_EPROM"></a> :
 
 
-![M27C256 Chip](../images/memory/M27C256B/M27C256_chip_pinout.png)
+![M27C256 Chip](../images/memory/M27C256B/M27C256_chip_pinout_small.png)
 figure 1
 
 The M27C256B is a UV erasable 15 bit EProm with an 8 bit data output. From the ST Electronics data sheet dated april 2006:
