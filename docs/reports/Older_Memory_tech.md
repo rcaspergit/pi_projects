@@ -241,14 +241,14 @@ Figure 11 gives a closeup view of the harness showing the addressing and data co
 
 W27E040 **:** Figure 12 illustrates the pin out of the W27E040 EEPROM. It shares many of the characteristics of the EPROM above. The main differences are in the address space, 19 address pins instead of 15, and a new pin Vpp . This pin is used for erasure of the chip and programming. The procedures for both will be described below.
 
-![](RackMultipart20220306-4-1h7bbh1_html_6fd90efa6af9d4e0.png)
+![](../images/memory/W27E040-12/W27E0400-12_pinout.png)
 
 Figure 12
 
 ## CD4021-BE Static Shift Register <a name="CD4021"></a>:
  Figure 13 illustrates the pinout of the CD4021 PISO shift register. This shift register will be used to pull data from the EEPROM. The EEPROM provides data as 8 bit words requiring 8 pins to collect. Given the additional address pins needed to access the EEPROM data, the RPi does not have enough pins to collect the data and manage control pins. To solve this problem the PISO chip will be used to collect the 8 data bits in parallel and the RPi will clock out the data from the PISO serially. The control and data pins needed to clock in the data only require 3 RPi pins. In the pinout below, the pins listed as PI-1 through PI-8 are the data pins and are the parallel inputs to the PISO. These will be connected to the data pins of the W27E040 and do not consume any RPi pins. The RPi pins will control the clock, parallel/serial control, and Q8. The Q8, Q7, and Q6 pins are serial out registers. This effort will only use the high order Q8 pin. This accounts for the three pins needed by the RPi to clock in data
 
-![](RackMultipart20220306-4-1h7bbh1_html_2b5572d86a560dc9.png)
+![](../images/shift_registers/CD4021-BE/CD4021-BE_pinout.png)
 
 Figure 13
 
@@ -256,7 +256,7 @@ Figure 13
 
 Operation of the CD4021-BE is fairly straight forward.
 
-![Shape1](RackMultipart20220306-4-1h7bbh1_html_5bb4da2a5ab440a.gif)
+![](../images/shift_registers/CD4021-BE/chip_piso.png)
 
 Figure 14
 
@@ -264,7 +264,6 @@ Figure 14 is a simplified connection diagram illustrates the data flow from the 
 
 The code snippet used to clock data out of the PISO is listed below:
 
-![Shape2](RackMultipart20220306-4-1h7bbh1_html_53b54d6979e7c8fb.gif)
 
 ```
 def get_data():
@@ -289,8 +288,6 @@ This Python code snippet has three variables Latch, Clock, and "outbyte". For ea
 Next is the loop, remember, the Q8 pin of the PISO has the value of the high order bit of the 8 bit data word. Each iteration will shift "outbyte"; 1 bit and then add in the read data bit to outbyte. Finally, the clock pin is cycled causing all the data bits in the PISO to shift 1 toward the high bit (as wired). After 8 steps through we have the day byte in the correct order.
 
 ## EEPROM dump code <a name="W27E040_Dump"></a>:
-
-![Shape3](RackMultipart20220306-4-1h7bbh1_html_d3a0b1f609e3c6d2.gif)
 
 ```
 import RPi.GPIO as GPIO            # import RPi.GPIO module
@@ -356,7 +353,7 @@ This is a little cleaner code then what was used in the previous dump. A functio
 
 ### Data identification <a name="Data_ID"></a>:
 
-![](RackMultipart20220306-4-1h7bbh1_html_826de4417f5ddb66.png)
+![](../images/shift_registers/CD4021-BE/data_dump.png)
 
 Figure 17
 
@@ -372,13 +369,12 @@ there was a hit on a website that described the formatting of FON files used in 
 
 ### FOS data <a name="FOS_Data"></a>:
 
-![](RackMultipart20220306-4-1h7bbh1_html_eb1712e86c987848.png)
+![](../images/shift_registers/CD4021-BE/FON_format.png)
 
 Figure 18
 
 Following the encode/decode procedure as stated the python code listed in figure 19
 
-![Shape4](RackMultipart20220306-4-1h7bbh1_html_6d123e7f80f1104b.gif)
 
 ```
 import sys
@@ -419,7 +415,7 @@ Figure 19
 
 Data images: Figure 20 illustrated decoded images from lines in the dump file. Each image is built up of 16 contingious bytes. From the file where each byte is represented in binary and stacked one on the other. A zero gets a space character and a 1 gets a &quot;\*&quot;.
 
-![](RackMultipart20220306-4-1h7bbh1_html_f83205b22da307c6.png)
+![](../images/shift_registers/CD4021-BE/FON_Decode.png)
 
 Figure 20
 
@@ -440,7 +436,7 @@ The W27B256 differs from the M27C256B in that it can be erased electrically. The
 - All other address pins to be held a VIL
 - All data pins held at VIH
 
-![](RackMultipart20220306-4-1h7bbh1_html_9f7aaf4c97de3d10.png)
+![](../images/shift_registers/CD4021-BE/erase_all.png)
 
 Figure 21
 
@@ -448,7 +444,7 @@ Figure 21
 
 The complication for erasing data was the need to supply several different voltage sources. This was done using the concept of voltage dividers. A simple voltage divider is illustrated in figure 22.
 
-![](RackMultipart20220306-4-1h7bbh1_html_a274752bf86159c1.png)
+![](../images/shift_registers/CD4021-BE/voltage_divider.png)
 
 This circuit was replicated 3 times to get the needed voltage levels for erasing the chip. The resisters used were are listed in Table 1:
 
@@ -463,15 +459,9 @@ Vout can be determined by the simple relation Vout = Vin(R1/(R1+R2)). Figure 22 
 
 Table 1
 
-![Shape11](RackMultipart20220306-4-1h7bbh1_html_5ef00ddf6e87f481.gif) ![Shape10](RackMultipart20220306-4-1h7bbh1_html_2c75f4bf028c9af9.gif) ![Shape7](RackMultipart20220306-4-1h7bbh1_html_f2d7651ec900898c.gif) ![Shape9](RackMultipart20220306-4-1h7bbh1_html_216361b41594b499.gif) ![Shape8](RackMultipart20220306-4-1h7bbh1_html_7e88f524c87f3840.gif) ![Shape6](RackMultipart20220306-4-1h7bbh1_html_e30a904686f43a8a.gif) ![Shape5](RackMultipart20220306-4-1h7bbh1_html_cf12924467a2a11c.gif)
 
-Top resistor is 10 ohm, bottom is 330 ohm. Measured Voltage between resistors was 0.4V
 
-Top resistor is 150 ohm, bottom is 47ohm. Measured voltage between is 3.3V
-
-Top resistor is 150 Ohm, botton is 270 ohm. Voltage measured between the resistors was 4.88 V
-
- ![](RackMultipart20220306-4-1h7bbh1_html_bd1bd87ee3517612.png)
+ ![](../images/shift_registers/CD4021-BE/voltage_divider_live.png)
 
 Figure 22
 
@@ -481,7 +471,7 @@ Once configured. The chip is connected and the Erasure takes a few miliseconds. 
 
 ## Programming the M27C256B <a name="Prog_M27C256B"></a>:
 
-![](RackMultipart20220306-4-1h7bbh1_html_15971945e86f08eb.png)
+![](../images/shift_registers/CD4021-BE/write_flow.png)
 
 Figure 23
 
@@ -493,7 +483,7 @@ To do the write, the M27C256B has specific voltage requirements that differ from
 
 Prior to power everything on, it is important to ensure that Vpp is isolated from all GPIO pins. To do this an ohm test was run between the Vpp pin and every other pin and GPIO pin.
 
-![](RackMultipart20220306-4-1h7bbh1_html_97445658d274e0e2.png)
+![](../images/shift_registers/CD4021-BE/write_actual.png)
 
 Figure 24
 
@@ -511,7 +501,7 @@ A second simplificatin was made for this test. Rather then do a read verify for 
 
 Finally, the write operation will only write to addresses 0 through 255.
 
-![](RackMultipart20220306-4-1h7bbh1_html_6c25e10f2feb052e.png)
+![](../images/shift_registers/CD4021-BE/write_code.png)
 
 Figure 25
 
@@ -519,7 +509,6 @@ Figure 25
 
 To verify the write operation, the data pins need to be connected and the hardwire connections between the address and data pins used for the the above write operations need to be removed. This is essentially the same python code used for the original dump but here, only address zero through 0x3ff will be read since address above 0xff were not programmed. The commented code was added for development to enable single stepping and debugging but was commented out in the final run
 
-![Shape12](RackMultipart20220306-4-1h7bbh1_html_f52d56911051f045.gif)
 
 ```
 import RPi.GPIO as GPIO            # import RPi.GPIO module
@@ -568,7 +557,7 @@ Figure 26
 
 The hex dump of the verify operation is listed in figure 2
 
-![](RackMultipart20220306-4-1h7bbh1_html_6f80c27d037cbefb.png)
+![](../images/shift_registers/CD4021-BE/written_data.png)
 
 Figure 27
 
