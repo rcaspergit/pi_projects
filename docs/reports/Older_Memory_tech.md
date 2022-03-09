@@ -46,7 +46,7 @@ The labs will progress from the oldest technology through the newest. In additio
 
 ## Support Components <a name="support_components"></a> :
 
-For data reads and writes the lab will proceed from manually setting control and addressing using a 5V source and reading the data at specific locations using LEDS to using raspberry pi 2 and 3&#39;s to supply power, control and addressing signals while leveraging the raspberry pi GPIO pins to read the data from the memory chips.
+For data reads and writes the lab will proceed from manually setting control and addressing using a 5V source and reading the data at specific locations using LEDS to using raspberry pi 2 and 3's to supply power, control and addressing signals while leveraging the raspberry pi GPIO pins to read the data from the memory chips.
 
 As the labs progress from the UV erasable M27C25B chip leveraging 15 bit addressing through the W27E040, leveraging 19 bit addressing, additional IC components will be used to manage IO to and from the chips. This will include the 4021 CMOS 8-stage Shift register as a Parallel In Serial Out (PISO) component supporting data reads. The labs will also leverage several 4094 CMOS 8 stage Shift and store Bus Register used as a Serial In Parallel Out (SIPO) component.
 
